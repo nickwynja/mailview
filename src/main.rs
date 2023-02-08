@@ -41,9 +41,9 @@ fn main() {
         );
 
         web_view::builder()
-            .title("Email")
+            .title("")
             .content(Content::Html(html))
-            .size(850, 900)
+            .size(700, 900)
             .resizable(true)
             .debug(true)
             .user_data(())

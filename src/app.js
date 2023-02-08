@@ -15,6 +15,9 @@ document.onkeydown = function(event) {
     case 'j':
       window.scrollBy(0, 50);
       break;
+    case 'Escape':
+      external.invoke('exit')
+      break;
   }
 };
 
@@ -28,5 +31,18 @@ document.addEventListener("DOMContentLoaded", function() {
         external.invoke(this.href);
       },
       false);
+  }
+
+// @TODO: https://github.com/webview/webview/issues/44#issuecomment-350342541
+  //      https://github.com/Boscop/web-view/issues/170
+//        Properly load local cid images
+
+  var images = document.getElementsByTagName('img');
+
+  for (var i = 0; i < images.length; i++) {
+    if (images[i].src.startsWith('/')) {
+      console.log(images[i]);
+      // images[i].src = "file://" + images[i].src;
+    }
   }
 })

@@ -1,3 +1,19 @@
 html, body {
-  max-width: 700px;
+    color: #000;
+    background: #fff;
+    font-family: MonoLisa;
+    font-size: 12px;
+}
+
+@media (prefers-color-scheme: dark) {
+  html, body {
+    color: #fff;
+    background: #000;
+  }
+
+  a {
+      color: cornflowerblue;
+
+  }
+
 }
