@@ -19,7 +19,7 @@ fn main() {
             <html>
                 <head>
                     <meta charset="utf-8">
-                    <base target="_top">
+                    {styles}
                     {scripts}
                 </head>
                 <body>
@@ -35,6 +35,7 @@ fn main() {
                 </body>
             </html>
             "##,
+            styles = inline_style(include_str!("./app.css")),
             scripts = inline_script(include_str!("./app.js")),
             body = contents
         );
@@ -42,7 +43,7 @@ fn main() {
         web_view::builder()
             .title("Email")
             .content(Content::Html(html))
-            .size(740, 768)
+            .size(850, 900)
             .resizable(true)
             .debug(true)
             .user_data(())
@@ -56,6 +57,10 @@ fn main() {
             .run()
             .unwrap();
     }
+}
+
+fn inline_style(s: &str) -> String {
+    format!(r#"<style type="text/css">{}</style>"#, s)
 }
 
 fn inline_script(s: &str) -> String {
