@@ -8,3 +8,5 @@ edition = "2021"
 [dependencies]
 web-view = { version = "0.7" }
 open = { version = "3.2.0"}
+soup = "0.5.1"
+image-base64 = "0.1.0"
