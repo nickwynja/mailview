@@ -56,9 +56,11 @@ fn main() {
             .debug(true)
             .user_data(())
             .invoke_handler(|webview, arg| {
-                match arg {
-                    "exit" => webview.exit(),
-                    _ => open::that(arg).unwrap()
+                if arg == "exit" {
+                    webview.exit();
+                } else {
+                    webview.exit();
+                    open::that(arg).unwrap()
                 }
                 Ok(())
             })
