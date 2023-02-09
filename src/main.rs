@@ -9,8 +9,9 @@ use image_base64;
 fn main() {
     if let Some(arg1) = env::args().nth(1) {
         let mut file = File::open(arg1).expect("Unable to open the file");
-        let mut contents = String::new();
-        file.read_to_string(&mut contents).expect("Unable to read the file");
+        let mut buf = vec![];
+        file.read_to_end (&mut buf).unwrap();
+        let mut contents = String::from_utf8_lossy(&buf).to_string();
 
         let soup = Soup::new(&contents);
 
