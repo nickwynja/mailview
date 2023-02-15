@@ -27,7 +27,11 @@ document.addEventListener("DOMContentLoaded", function() {
     Anchors[i].addEventListener("click",
       function (event) {
         event.preventDefault();
-        external.invoke(this.href);
+        if(event.metaKey) {
+          external.invoke(`bg ${this.href}`);
+        } else {
+          external.invoke(this.href);
+        }
       },
       false);
   }

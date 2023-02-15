@@ -54,11 +54,16 @@ fn main() {
             .content(Content::Html(html))
             .size(700, 900)
             .resizable(true)
-            .debug(true)
             .user_data(())
             .invoke_handler(|webview, arg| {
                 if arg == "exit" {
                     webview.exit();
+                } else if arg.starts_with("bg") {
+                    let split = arg.split(" ");
+                    let vec: Vec<&str> = split.collect();
+                    let url = vec[1];
+                    println!("{:?}", url);
+                    open::that(url).unwrap()
                 } else {
                     webview.exit();
                     open::that(arg).unwrap()
