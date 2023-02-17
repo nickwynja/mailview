@@ -54,6 +54,7 @@ fn main() {
             .content(Content::Html(html))
             .size(700, 900)
             .resizable(true)
+            .debug(true)
             .user_data(())
             .invoke_handler(|webview, arg| {
                 if arg == "exit" {

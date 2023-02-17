@@ -24,6 +24,7 @@ document.onkeydown = function(event) {
 document.addEventListener("DOMContentLoaded", function() {
   var Anchors = document.getElementsByTagName("a");
   for (var i = 0; i < Anchors.length ; i++) {
+    // On click, open link in browser
     Anchors[i].addEventListener("click",
       function (event) {
         event.preventDefault();
@@ -34,5 +35,8 @@ document.addEventListener("DOMContentLoaded", function() {
         }
       },
       false);
+
+    // set title attr for hovering on links
+    Anchors[i].title = Anchors[i].href;
   }
 })
