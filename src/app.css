@@ -11,6 +11,14 @@ img {
 
 }
 
+code {
+    font-family: MonoLisa;
+    background-color: #eee;
+    border: 1px solid #888;
+    border-radius: 2px;
+    padding: 0 4px;
+}
+
 @media (prefers-color-scheme: dark) {
   html, body {
     color: #fff;

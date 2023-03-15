@@ -1,5 +1,10 @@
 document.onkeydown = function(event) {
   switch (event.key) {
+    case 'c':
+      if(event.metaKey) {
+        return document.execCommand('copy');
+      }
+      break;
     case 'q':
       external.invoke('exit')
       break;

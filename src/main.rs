@@ -6,6 +6,14 @@ use open;
 use soup::prelude::*;
 use image_base64;
 
+fn inline_style(s: &str) -> String {
+    format!(r#"<style type="text/css">{}</style>"#, s)
+}
+
+fn inline_script(s: &str) -> String {
+    format!(r#"<script type="text/javascript">{}</script>"#, s)
+}
+
 fn main() {
     if let Some(arg1) = env::args().nth(1) {
         let mut file = File::open(arg1).expect("Unable to open the file");
@@ -18,7 +26,9 @@ fn main() {
         for (_i, link) in soup.tag("img").find_all().enumerate() {
             let src = link.get("src").expect("Couldn't find link with 'href' attribute");
             if ! src.starts_with("http") {
-                contents = contents.replace(&src, &image_base64::to_base64(&src));
+                // @TODO: catch err so this works offline
+                let img = &image_base64::to_base64(&src);
+                contents = contents.replace(&src, img);
             }
         }
 
@@ -31,17 +41,7 @@ fn main() {
                     {styles}
                     {scripts}
                 </head>
-                <body>
-                    {body}
-                    <!--[if lt IE 9]>
-                    <div class="ie-upgrade-container">
-                        <p class="ie-upgrade-message">Please, upgrade Internet Explorer to continue using this software.</p>
-                        <a class="ie-upgrade-link" target="_blank" href="https://www.microsoft.com/en-us/download/internet-explorer.aspx">Upgrade</a>
-                    </div>
-                    <![endif]-->
-                    <!--[if gte IE 9 | !IE ]> <!-->
-                    <![endif]-->
-                </body>
+                <body>{body}</body>
             </html>
             "##,
             styles = inline_style(include_str!("./app.css")),
@@ -52,7 +52,7 @@ fn main() {
         web_view::builder()
             .title("")
             .content(Content::Html(html))
-            .size(700, 900)
+            .size(800, 900)
             .resizable(true)
             .debug(true)
             .user_data(())
@@ -74,12 +74,4 @@ fn main() {
             .run()
             .unwrap();
     }
-}
-
-fn inline_style(s: &str) -> String {
-    format!(r#"<style type="text/css">{}</style>"#, s)
-}
-
-fn inline_script(s: &str) -> String {
-    format!(r#"<script type="text/javascript">{}</script>"#, s)
 }
