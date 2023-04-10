@@ -19,6 +19,20 @@ code {
     padding: 0 4px;
 }
 
+#search {
+  height: 20px;
+  width: 100%;
+  position: fixed;
+  bottom: 0;
+  background: white;
+  border-top: 1px solid grey;
+  display: none;
+}
+
+#search.open {
+  display: block;
+}
+
 @media (prefers-color-scheme: dark) {
   html, body {
     color: #fff;
