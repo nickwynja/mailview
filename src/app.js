@@ -4,12 +4,10 @@ document.onkeydown = function(event) {
   }
   switch (event.key) {
     case 'c':
-      if(event.metaKey) {
-        return document.execCommand('copy');
-      }
+      if(event.metaKey){window.ipc.postMessage('copy')}
       break;
     case 'q':
-      external.invoke('exit')
+      window.ipc.postMessage('close')
       break;
     case 'G':
       window.scrollTo(0, 0)
@@ -24,7 +22,7 @@ document.onkeydown = function(event) {
       window.scrollBy(0, 50);
       break;
     case 'Escape':
-      external.invoke('exit')
+      window.ipc.postMessage('close')
       break;
     case '/':
       event.preventDefault();

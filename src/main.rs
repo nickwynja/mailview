@@ -1,8 +1,8 @@
-use web_view::*;
-use std::io::prelude::*;
 use std::env;
-use std::fs::File;
+use wry;
 use open;
+use std::fs::File;
+use std::io::Read;
 use soup::prelude::*;
 use image_base64;
 
@@ -14,64 +14,108 @@ fn inline_script(s: &str) -> String {
     format!(r#"<script type="text/javascript">{}</script>"#, s)
 }
 
-fn main() {
-    if let Some(arg1) = env::args().nth(1) {
-        let mut file = File::open(arg1).expect("Unable to open the file");
-        let mut buf = vec![];
-        file.read_to_end (&mut buf).unwrap();
-        let mut contents = String::from_utf8_lossy(&buf).to_string();
+fn main() -> wry::Result<()> {
+    use wry::{
+        application::{
+            event::{Event, StartCause, WindowEvent},
+            event_loop::{ControlFlow, EventLoop},
+            dpi::LogicalSize,
+            window::{Window, WindowBuilder},
+        },
+        webview::WebViewBuilder,
+    };
 
-        let soup = Soup::new(&contents);
+  enum UserEvents {
+    CloseWindow,
+  }
 
-        for (_i, link) in soup.tag("img").find_all().enumerate() {
-            let src = link.get("src").expect("Couldn't find link with 'href' attribute");
-            if ! src.starts_with("http") {
-                // @TODO: catch err so this works offline
-                let img = &image_base64::to_base64(&src);
-                contents = contents.replace(&src, img);
-            }
-        }
+  let arg = env::args().nth(1).unwrap();
+  let event_loop = EventLoop::<UserEvents>::with_user_event();
+  let window = WindowBuilder::new()
+    .with_title("...")
+    .build(&event_loop)
+    .unwrap();
 
-        let html = format!(
-            r##"
-            <!doctype html>
-            <html>
-                <head>
-                    <meta charset="utf-8">
-                    {styles}
-                    {scripts}
-                </head>
-                <body>{body}</body>
-            </html>
-            "##,
-            styles = inline_style(include_str!("./app.css")),
-            scripts = inline_script(include_str!("./app.js")),
-            body = contents,
-        );
+  let mut file = File::open(arg).expect("Unable to open the file");
+  let mut buf = vec![];
+  file.read_to_end(&mut buf).unwrap();
+  let mut contents = String::from_utf8_lossy(&buf).to_string();
 
-        web_view::builder()
-            .title("")
-            .content(Content::Html(html))
-            .size(800, 900)
-            .resizable(true)
-            .debug(true)
-            .user_data(())
-            .invoke_handler(|webview, arg| {
-                if arg == "exit" {
-                    webview.exit();
-                } else if arg.starts_with("bg") {
-                    let split = arg.split(" ");
-                    let vec: Vec<&str> = split.collect();
-                    let url = vec[1];
-                    println!("{:?}", url);
-                    open::that(url).unwrap()
-                } else {
-                    webview.exit();
-                    open::that(arg).unwrap()
-                }
-                Ok(())
-            })
-            .run()
-            .unwrap();
+  let soup = Soup::new(&contents);
+
+  for (_i, link) in soup.tag("img").find_all().enumerate() {
+      let src = link.get("src").expect("Couldn't find link with 'href' attribute");
+      if ! src.starts_with("http") {
+          // @TODO: catch err so this works offline
+          let img = &image_base64::to_base64(&src);
+          contents = contents.replace(&src, img);
+      }
+  }
+
+  let html = format!(
+      r##"
+    <!doctype html>
+    <html>
+        <head>
+            <meta charset="utf-8">
+            {styles}
+            {scripts}
+        </head>
+        <body>{body}</body>
+    </html>
+    "##,
+    styles = inline_style(include_str!("./app.css")),
+    scripts = inline_script(include_str!("./app.js")),
+    body = contents,
+);
+
+  window.set_inner_size(LogicalSize::new(700, 900));
+
+  let proxy = event_loop.create_proxy();
+
+  let handler = move |_window: &Window, req: String| {
+    if req.starts_with("http") {
+      open::that(&req).unwrap();
+      let _ = proxy.send_event(UserEvents::CloseWindow);
+    } else if req == "close" {
+      let _ = proxy.send_event(UserEvents::CloseWindow);
+    } else {
+        _window.set_title(&req);
     }
+  };
+
+
+  let _webview =
+      WebViewBuilder::new(window)
+      .unwrap()
+      .with_html(html)?
+      .with_ipc_handler(handler)
+      .with_accept_first_mouse(true)
+      .build()?;
+
+
+  _webview.evaluate_script(include_str!("./app.js"))?;
+
+  let mut webview = Some(
+      _webview,
+      );
+
+  event_loop.run(move |event, _, control_flow| {
+    *control_flow = ControlFlow::Wait;
+
+    match event {
+      Event::NewEvents(StartCause::Init) => println!("Wry application started!"),
+      Event::WindowEvent {
+        event: WindowEvent::CloseRequested,
+        ..
+      }
+      | Event::UserEvent(UserEvents::CloseWindow) => {
+        let _ = webview.take();
+        *control_flow = ControlFlow::Exit
+      }
+      _ => (),
+    }
+  });
 }
+
+
