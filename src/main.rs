@@ -74,16 +74,18 @@ fn main() -> wry::Result<()> {
   let proxy = event_loop.create_proxy();
 
   let handler = move |_window: &Window, req: String| {
-    if req.starts_with("http") {
-      open::that(&req).unwrap();
+    if req == "close" {
       let _ = proxy.send_event(UserEvents::CloseWindow);
-    } else if req == "close" {
-      let _ = proxy.send_event(UserEvents::CloseWindow);
+    } else if req.starts_with("bg") {
+        let split = req.split(" ");
+        let vec: Vec<&str> = split.collect();
+        let url = vec[1];
+        open::that(url).unwrap()
     } else {
-        _window.set_title(&req);
+        let _ = proxy.send_event(UserEvents::CloseWindow);
+        open::that(&req).unwrap()
     }
   };
-
 
   let _webview =
       WebViewBuilder::new(window)

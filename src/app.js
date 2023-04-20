@@ -54,9 +54,9 @@ document.addEventListener("DOMContentLoaded", function() {
       function (event) {
         event.preventDefault();
         if(event.metaKey) {
-          external.invoke(`bg ${this.href}`);
+          window.ipc.postMessage(`bg ${this.href}`)
         } else {
-          external.invoke(this.href);
+          window.ipc.postMessage(this.href)
         }
       },
       false);
