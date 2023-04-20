@@ -4,7 +4,7 @@ document.onkeydown = function(event) {
   }
   switch (event.key) {
     case 'c':
-      if(event.metaKey){window.ipc.postMessage('copy')}
+      if(event.metaKey){document.execCommand('copy')}
       break;
     case 'q':
       window.ipc.postMessage('close')
