@@ -5,6 +5,7 @@ use std::fs::File;
 use std::io::Read;
 use soup::prelude::*;
 use image_base64;
+use std::path::Path;
 
 fn inline_style(s: &str) -> String {
     format!(r#"<style type="text/css">{}</style>"#, s)
@@ -32,7 +33,7 @@ fn main() -> wry::Result<()> {
   let arg = env::args().nth(1).unwrap();
   let event_loop = EventLoop::<UserEvents>::with_user_event();
   let window = WindowBuilder::new()
-    .with_title("...")
+    .with_title("")
     .build(&event_loop)
     .unwrap();
 
@@ -44,11 +45,12 @@ fn main() -> wry::Result<()> {
   let soup = Soup::new(&contents);
 
   for (_i, link) in soup.tag("img").find_all().enumerate() {
-      let src = link.get("src").expect("Couldn't find link with 'href' attribute");
-      if ! src.starts_with("http") {
-          // @TODO: catch err so this works offline
-          let img = &image_base64::to_base64(&src);
-          contents = contents.replace(&src, img);
+      let src = link.get("src").unwrap_or_default();
+      if src != "" && ! src.starts_with("http") && ! src.starts_with("data:image") && ! src.starts_with("cid:"){
+          if Path::new(&src).exists() {
+              let img = &image_base64::to_base64(&src);
+              contents = contents.replace(&src, &img.clone().unwrap());
+          }
       }
   }
 

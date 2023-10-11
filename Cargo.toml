@@ -9,5 +9,5 @@ edition = "2021"
 wry = "*"
 open = "*"
 soup = "*"
-image-base64 = "*"
+image-base64 = { git = "https://github.com/iwatakeshi/image-base64-rs", version = "0.1.0" }
 

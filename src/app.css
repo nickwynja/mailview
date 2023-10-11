@@ -1,9 +1,8 @@
+/*
 html, body {
-    color: #000;
-    background: #fff;
-    font-family: MonoLisa;
     font-size: 12px;
 }
+*/
 
 img {
   max-width: 100%;
@@ -31,17 +30,4 @@ code {
 
 #search.open {
   display: block;
-}
-
-@media (prefers-color-scheme: dark) {
-  html, body {
-    color: #fff;
-    background: #121212;
-  }
-
-  a {
-      color: cornflowerblue;
-
-  }
-
 }
